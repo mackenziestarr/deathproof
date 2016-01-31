@@ -1,0 +1,20 @@
+{
+  "name": "deathproof",
+  "version": "1.0.0",
+  "description": "log driven regression testing",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha spec"
+  },
+  "author": "mackenziestarr",
+  "license": "ISC",
+  "dependencies": {
+    "chai": "^3.4.1",
+    "commander": "^2.9.0",
+    "mocha": "^2.3.4",
+    "request": "^2.67.0"
+  },
+  "devDependencies": {
+    "mocha": "^2.4.5"
+  }
+}
