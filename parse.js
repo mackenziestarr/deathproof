@@ -1,32 +1,43 @@
+"use strict";
+
 var fs = require('fs');
-var url = require('url');
 var path = require('path');
+var definition = require('./format.json');
 
-var Parse = {
+class Parse {
+    constructor(format) {
+        this.keys = [];
+        var knownFormat = {
+            'common-log' : '%h %l %u %t \"%r\" %>s %b'
+        }[format];
+        this.expression = this.extract(knownFormat || format);
+    }
+    extract(format) {
+        // get only formatting tokens
+        format = format.match(/[%\w>]+/g);
 
-    // string or function, parse log format
-    log : (filename, format) => {
-        var content = fs.readFileSync(path.join(__dirname, filename), 'utf8');
-        return format && typeof format === 'function' ? format(content) : this.extract(format, content);
-    },
-    extract : function extract(format) {
-        if (!(format instanceof Array)) {
-            format = format.split(/ +/);
-        }
-        if (!format.length) return '';
-        var argument = format.shift();
-        var expression = {
-            // time when request was recieved
-            '%t' : '(\\[.*?\\])'
-        }[argument];
-        return (expression || '([^\\s]*)')
-             + (format.length > 0 && '\\s*' || '')
-             + extract(format);
+        var capture = (function extract(format, keys) {
+            var token = format.shift();
+            if (definition[token]) keys.push(definition[token].key);
+            var match = definition[token] && definition[token].match || '[^\\s]+';
+            return !format.length ? '' : `(${match})` + '\\s+' + extract(format, keys);
+        })(format, this.keys);
 
-        // varnish format string
-        // %h %l %u %t "%r" %s %b "%{Referer}i" "%{User-agent}i"
-    },
-    commonLogFormat : log => {
+        return new RegExp(capture);
+    }
+    expand(line) {
+        var o = {};
+        line.match(this.expression)
+            .slice(1)
+            .forEach(function(v, i){
+                if (this.keys[i] === 'request') {
+                    o['path'] = v.split(' ')[1];
+                }
+                else o[this.keys[i]] = v;
+        }, this);
+        return o;
+    }
+    build(log) {
         var requests = {};
         // todo: support cross-platform newlines
         log.split('\n').forEach(_entry => {
@@ -38,6 +49,11 @@ var Parse = {
         });
         return requests;
     }
-};
+    log(filename, format) {
+        // string or function, parse log format
+        var content = fs.readFileSync(path.join(__dirname, filename), 'utf8');
+        return format && typeof format === 'function' ? format(content) : this.extract(format, content);
+    }
+}
 
 module.exports = Parse;

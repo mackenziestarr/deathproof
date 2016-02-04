@@ -1,0 +1,32 @@
+{
+  "%h" : {
+    "key" : "client_ip",
+    "description" : "IP address of the client"
+  },
+  "%l" : {
+    "key" : "client_id",
+    "description" : "identity of the user determined by identd"
+  },
+  "%u" : {
+    "key" : "client_name",
+    "description" : "user name determined by HTTP authentication"
+  },
+  "%t" : {
+    "key" : "time",
+    "description" : "time when the request was received",
+    "match" : "\\[.*?\\]"
+  },
+  "%r" : {
+    "key" : "request",
+    "description" : "first line of HTTP request",
+    "match" : ".+"
+  },
+  "%>s" : {
+    "key" : "status_code",
+    "description" : "status code sent from the server to the client"
+  },
+  "%b" : {
+    "key" : "size",
+    "description" : "size of the response to the client (in bytes)"
+  }
+}
