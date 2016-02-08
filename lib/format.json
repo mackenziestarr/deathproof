@@ -19,7 +19,7 @@
   "%r" : {
     "key" : "request",
     "description" : "first line of HTTP request",
-    "match" : ".+"
+    "match" : "\\\".+HTTP\\\/\\d\\.\\d\\\""
   },
   "%>s" : {
     "key" : "status_code",
@@ -28,5 +28,14 @@
   "%b" : {
     "key" : "size",
     "description" : "size of the response to the client (in bytes)"
+  },
+  "%{Referer}i" : {
+    "key" : "referer",
+    "description" : "URL which linked the user to your site"
+  },
+  "%{User-agent}i" : {
+    "key" : "user_agent",
+    "description" : "the web browser and platform used by the visitor to your site",
+    "match" : ".+"
   }
 }

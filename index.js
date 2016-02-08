@@ -2,18 +2,16 @@ var Mocha = require('mocha'),
     fs = require('fs'),
     path = require('path'),
     program = require('commander'),
-    parse = require('./parse');
+    Parse = require('./lib/parse');
 
 program
     .version('1.0.0')
     .option('-H, --host <host>', 'The full lowercased host portion of the URL, including port information')
-    .option('-f, --file <file>', 'Path to log file')
+    .option('-F, --file <file>', 'Path to log file')
+    .option('-f, --format <format>', 'Named or custom log format')
     .parse(process.argv);
 
-if (!program.host || !program.file) {
-    console.log('usage: node index.js -H 127.0.0.1:8000 -f varnish200.log');
-    program.help();
-}
+if (!program.host || !program.file || !program.format) program.help();
 
 if (!program.host.startsWith('http://')) {
     program.host = 'http://' + program.host;
@@ -21,22 +19,7 @@ if (!program.host.startsWith('http://')) {
 
 module.exports.host = program.host;
 
-module.exports.requests = parse.log(program.file, (content) => {
-    var requests = {};
-    var regex = /amazonaws\.com(.*?)\s*HTTP\/1\.1\"\s(\w*)\s(\w*).*?\n/g;
-    while ((match = regex.exec(content))) {
-        var key = requests[match[2]] ? requests[match[2]] : (requests[match[2]] = []);
-        //if (pathArg) {
-        //    if (pathArg === match[1]) {
-        //        key.push({path:match[1],varnishTime:match[3]});
-        //    }
-        //} else {
-            key.push({path:match[1],varnishTime:match[3]});
-        //}
-    }
-    return requests;
-});
-
+module.exports.requests = new Parse(program.format).log(program.file);
 
 var mocha = new Mocha({ui: 'bdd'});
 // Add each .js file to the mocha instance
