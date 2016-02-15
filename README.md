@@ -8,5 +8,5 @@ $ npm install --save-dev deathproof
 ```
 run script
 ```
-node ./node_modules/deathproof 
+$ node ./node_modules/deathproof 
 ```
