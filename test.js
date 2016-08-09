@@ -1,6 +1,6 @@
 var request = require('request');
 var expect = require('chai').expect;
-var runner = require('index');
+var runner = require('.');
 
 describe("status codes", function() {
     Object.keys(runner.requests).forEach(function(statusCode) {
